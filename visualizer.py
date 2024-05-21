@@ -23,24 +23,29 @@ import json
 #     # Run the GUI
 #     root.mainloop()
 
-# def update_pos():
+font = cv.FONT_HERSHEY_SIMPLEX
+font_size = 1.1
+font_thickness = 2
 
+white_color = 255, 255, 255  	# white color
+black_color = 0, 0, 0			# black color
+gray_color = 211, 211, 211		# gray color
+red_color = 20, 70, 220			# red color
+blue_color = 220, 100, 50		# blue color
+green_color = 100, 190, 0		# green color
 
+# parameters of rectangle for data box
+rec_width = 163
+rec_height = 80
 
-def visualizer():
+def base_ui():
 	# create window
-	screen_width = 1800
+	screen_width = 1450
 	screen_height = 900
 	img = np.zeros((screen_height, screen_width, 3), dtype=np.uint8)
 
-	position_x = 1300  				# x-coordinate of the line
+	position_x = 950  				# x-coordinate of the line
 	box_width = 2  					# width of the line
-	white_color = 255, 255, 255  	# white color
-	black_color = 0, 0, 0			# black color
-	gray_color = 211, 211, 211		# gray color
-	red_color = 20, 70, 220			# red color
-	blue_color = 220, 100, 50		# blue color
-	green_color = 100, 190, 0		# green color
 
 	# draw rectangle to separate screen
 	img = cv.rectangle(img, (0, 0), (position_x, screen_width), white_color, -1)				# main display
@@ -51,50 +56,41 @@ def visualizer():
 	img = cv.rectangle(img, (position_x+10, 305), (screen_width, 595), blue_color, -1)			# middle info screen
 	img = cv.rectangle(img, (position_x+10, 605), (screen_width, 900), green_color, -1)			# bottom info screen
 
-	
-	# parameters of rectangle for data box
-	rec_width = 163
-	rec_height = 80
-	font = cv.FONT_HERSHEY_SIMPLEX
-	font_size = 1.1
-	font_thickness = 2
-
 	# text and data box for Frame #
-	img = cv.rectangle(img, (1332, 118), (1332 + rec_width, 118 + rec_height), white_color, -1)
-	img = cv.putText(img, "Frame #", (1338, 97), font, font_size, white_color, font_thickness, cv.LINE_AA)
+	img = cv.rectangle(img, (987, 118), (987 + rec_width, 118 + rec_height), white_color, -1)
+	img = cv.putText(img, "Frame #", (995, 97), font, font_size, white_color, font_thickness, cv.LINE_AA)
 
 	# text and data box for Elapsed time (ms)
-	img = cv.rectangle(img, (1537, 118), (1603 + rec_width, 118 + rec_height), white_color, -1)
-	img = cv.putText(img, "Runtime (ms)", (1535, 97), font, font_size, white_color, font_thickness, cv.LINE_AA)
-
-
-	# Node 1 title
-	img = cv.putText(img, "Node 1", (1480, 355), font, font_size+0.5, white_color, font_thickness+2, cv.LINE_AA)
-	img = cv.line(img, (1480, 365), (1655, 365), white_color, 3)
-	# text and data box for "Angle"
-	img = cv.rectangle(img, (1372, 438), (1372 + rec_width, 438 + rec_height), white_color, -1)
-	img = cv.putText(img, "Range", (1397, 420), font, font_size, white_color, font_thickness, cv.LINE_AA)
-	# text and data box for "Angle"
-	img = cv.rectangle(img, (1600, 438), (1600 + rec_width, 438 + rec_height), white_color, -1)
-	img = cv.putText(img, "Angle", (1635, 420), font, font_size, white_color, font_thickness, cv.LINE_AA)
+	img = cv.rectangle(img, (1192, 118), (1258 + rec_width, 118 + rec_height), white_color, -1)
+	img = cv.putText(img, "Runtime (ms)", (1190, 97), font, font_size, white_color, font_thickness, cv.LINE_AA)
 
 	# Node 1 title
-	img = cv.putText(img, "Node 2", (1480, 655), font, font_size+0.5, white_color, font_thickness+2, cv.LINE_AA)
-	img = cv.line(img, (1480, 665), (1663, 665), white_color, 3)
+	img = cv.putText(img, "Node 1", (1110, 355), font, font_size+0.5, white_color, font_thickness+2, cv.LINE_AA)
+	img = cv.line(img, (1110, 365), (1285, 365), white_color, 3)
 	# text and data box for "Angle"
-	img = cv.rectangle(img, (1372, 738), (1372 + rec_width, 738 + rec_height), white_color, -1)
-	img = cv.putText(img, "Range", (1397, 720), font, font_size, white_color, font_thickness, cv.LINE_AA)
+	img = cv.rectangle(img, (1012, 438), (1012 + rec_width, 438 + rec_height), white_color, -1)
+	img = cv.putText(img, "Range (m)", (1002, 420), font, font_size, white_color, font_thickness, cv.LINE_AA)
 	# text and data box for "Angle"
-	img = cv.rectangle(img, (1600, 738), (1600 + rec_width, 738 + rec_height), white_color, -1)
-	img = cv.putText(img, "Angle", (1635, 720), font, font_size, white_color, font_thickness, cv.LINE_AA)
+	img = cv.rectangle(img, (1240, 438), (1240 + rec_width, 438 + rec_height), white_color, -1)
+	img = cv.putText(img, "Angle (deg)", (1225, 420), font, font_size, white_color, font_thickness, cv.LINE_AA)
+
+	# Node 2 title
+	img = cv.putText(img, "Node 2", (1110, 655), font, font_size+0.5, white_color, font_thickness+2, cv.LINE_AA)
+	img = cv.line(img, (1110, 665), (1295, 665), white_color, 3)
+	# text and data box for "Angle"
+	img = cv.rectangle(img, (1012, 738), (1012 + rec_width, 738 + rec_height), white_color, -1)
+	img = cv.putText(img, "Range (m)", (1002, 720), font, font_size, white_color, font_thickness, cv.LINE_AA)
+	# text and data box for "Angle"
+	img = cv.rectangle(img, (1240, 738), (1240 + rec_width, 738 + rec_height), white_color, -1)
+	img = cv.putText(img, "Angle (deg)", (1225, 720), font, font_size, white_color, font_thickness, cv.LINE_AA)
 
 	# Node 1 box
 	img = cv.rectangle(img, (10, 370), (110, 470), black_color, -1)
 	img = cv.putText(img, "1", (40, 440), font, font_size+1, white_color, 6, cv.LINE_AA)
 
 	# Node 2 box
-	img = cv.rectangle(img, (605, 790), (705, 890), black_color, -1)
-	img = cv.putText(img, "2", (635, 860), font, font_size+1, white_color, 6, cv.LINE_AA)
+	img = cv.rectangle(img, (430, 790), (530, 890), black_color, -1)
+	img = cv.putText(img, "2", (460, 860), font, font_size+1, white_color, 6, cv.LINE_AA)
 
 	# Scale tick mark parameters
 	num_ticks = 11
@@ -116,21 +112,20 @@ def visualizer():
 	interval3 = (line3_end[0] - line3_start[0]) // (num_ticks - 1)
 
 	# vertical line adjacent to node 2
-	line2_start = (1200, 790)
-	line2_end = (1200, 50)
+	line2_start = (850, 790)
+	line2_end = (850, 50)
 	img = cv.line(img, line2_start, line2_end, black_color, 2)
 	# tick marks
 	# Calculate the interval between tick marks
 	interval2 = (line2_end[1] - line2_start[1]) // (num_ticks - 1)
 
 	# top horizontal line
-	line4_start = (1200, 50)
+	line4_start = (850, 50)
 	line4_end = (110, 50)
 	img = cv.line(img, line4_start, line4_end, black_color, 2)
 	# Calculate the interval between tick marks
 	interval4 = (line4_end[0] - line4_start[0]) // (num_ticks - 1)
 
-	
 	# Draw tick marks perpendicular to the line
 	for i in range(num_ticks):
 		tick_position = (line1_start[0], line1_start[1] + i * interval1)
@@ -155,11 +150,19 @@ def visualizer():
 		cv.line(img, (tick_position[0], tick_position[1] - tick_length),
 				 (tick_position[0], tick_position[1] + tick_length), black_color, 2)
 
-	# label the scale
-	img = cv.putText(img, "Distance (m)", (570, 30), font, 1.0, black_color, 4, cv.LINE_AA)
+	# X-axis label
+	img = cv.putText(img, "Distance (m)", (370, 30), font, 1.0, black_color, 4, cv.LINE_AA)
 
-	# legend
-	img = cv.putText(img, "1m intervals", (25, 1050), font, 0.8, black_color, 4, cv.LINE_AA)
+	# Y-axis label
+	img = cv.putText(img, "D", (885, 330), font, 1.0, black_color, 4, cv.LINE_AA)
+	img = cv.putText(img, "i", (890, 360), font, 1.0, black_color, 4, cv.LINE_AA)
+	img = cv.putText(img, "s", (886, 385), font, 1.0, black_color, 4, cv.LINE_AA)
+	img = cv.putText(img, "t", (888, 415), font, 1.0, black_color, 4, cv.LINE_AA)
+	img = cv.putText(img, "a", (885, 440), font, 1.0, black_color, 4, cv.LINE_AA)
+	img = cv.putText(img, "n", (885, 465), font, 1.0, black_color, 4, cv.LINE_AA)
+	img = cv.putText(img, "c", (885, 490), font, 1.0, black_color, 4, cv.LINE_AA)
+	img = cv.putText(img, "e", (885, 515), font, 1.0, black_color, 4, cv.LINE_AA)
+	img = cv.putText(img, "(m)", (865, 550), font, 1.0, black_color, 4, cv.LINE_AA)
 
 	'''
 	# Circle for each for triangulation
@@ -173,9 +176,40 @@ def visualizer():
 	# Node 2
 	img = cv.circle(img, (node2Circle[0], node2Circle[1]), node2Circle[2], red_color, 2)
 	'''
+	return img
 
-	cv.imshow("Multi-Node UI", img)
-	cv.waitKey(0)
+def clear_text(ui_img):
+	# Clear General Text
+	ui_img = cv.rectangle(ui_img, (987, 118), (987 + rec_width, 118 + rec_height), white_color, -1)
+	ui_img = cv.rectangle(ui_img, (1192, 118), (1258 + rec_width, 118 + rec_height), white_color, -1)
+
+	# Clear Node 1 Text
+	ui_img = cv.rectangle(ui_img, (1012, 438), (1012 + rec_width, 438 + rec_height), white_color, -1)
+	ui_img = cv.rectangle(ui_img, (1240, 438), (1240 + rec_width, 438 + rec_height), white_color, -1)
+
+	# Clear Node 2 Text
+	ui_img = cv.rectangle(ui_img, (1012, 738), (1012 + rec_width, 738 + rec_height), white_color, -1)
+	ui_img = cv.rectangle(ui_img, (1240, 738), (1240 + rec_width, 738 + rec_height), white_color, -1)
+	
+	return ui_img
+
+
+def update_ui(fname_mw, fname_p, ui_img):
+	data_mw = json.load(open(fname_mw))
+	data_p = json.load(open(fname_p))
+
+	angle_mw = data_mw['Angle']
+	# range_mw = data_mw['Range']
+	angle_p = data_p['Angle']
+	# range_p = data_p['Range']
+	runtime = data_p['Elapsed Time (ms)']
+
+	ui_img = clear_text(ui_img)
+	ui_img = cv.putText(ui_img, str(runtime), (1200, 172), font, 1.4, black_color, font_thickness, cv.LINE_AA)
+	ui_img = cv.putText(ui_img, str(angle_mw), (1255, 492), font, 1.4, black_color, font_thickness, cv.LINE_AA)
+	ui_img = cv.putText(ui_img, str(angle_p), (1255, 792), font, 1.4, black_color, font_thickness, cv.LINE_AA)
+	return ui_img
+
 
 # Triangulation Calculation
 # Function to find intersection points of two circles
@@ -219,5 +253,23 @@ def find_circle_intersections(circle1, circle2):
 # 	cv.circle(img, intersect2, 10, (0, 255, 0), -1)
 
 if __name__ == "__main__":
-	visualizer()
+	path = '/mnt/c/Users/adity/Programming/Capstone/Multi-Node-App/frame_data/'
+	winname = "Multi-Node Visualizer"
+	base_img = base_ui()
+	cv.imshow(winname, base_img)
+	cv.moveWindow(winname, 1, 0)
+	cv.waitKey(1000)
+
+	num_frames = 10
+	frame = 1
+	while (frame <= num_frames):
+		fname_mw = path + 'Mike_Frame{}.json'.format(frame)
+		fname_p = path + 'Patrick_Frame{}.json'.format(frame)
+		new_img = update_ui(fname_mw, fname_p, base_img)
+		new_img = cv.putText(new_img, str(frame), (1035, 172), font, 1.4, black_color, font_thickness, cv.LINE_AA)
+		cv.imshow(winname, new_img)
+		cv.moveWindow(winname, 1, 0)
+		cv.waitKey(1000)
+		frame+=1
+	cv.waitKey()
 
