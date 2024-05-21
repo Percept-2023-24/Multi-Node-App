@@ -6,13 +6,13 @@
 
 using namespace cv;
 using namespace std;
-using namespace std::chrono;
+//using namespace std::chrono;
 
 class Visualizer {
 	// Variables
 	int screen_width = 1920;
 	int screen_height = 1080;
-	int position_x = 1600;  // x-coordinate of the line
+	int position_x = 1000;  // x-coordinate of the line
 	int thickness = 2;  // width of the line
 	int rec_width = 200;
 	int rec_height = 75;
@@ -27,14 +27,6 @@ class Visualizer {
 	int frame;
 
 	public:
-		// create opening menu
-		// void openingScreen(){
-			
-		// }
-
-		// read json file with frame data
-
-
 		// Triangulation function
 		tuple<pair<int, int>, pair<int, int>> triangulate(tuple<double, double, double> circle1, tuple<double, double, double> circle2) {
 
@@ -75,22 +67,23 @@ class Visualizer {
 		// create UI
 		void UIscreen(){
 			// Create a blank image
-			Mat img = cv::Mat::zeros(screen_height, screen_width, CV_8UC3);
+			Mat img = Mat::zeros(screen_height, screen_width, CV_8UC3);
 
+			
 			// Draw rectangle to separate screen
-			rectangle(img, Point(0, 0), cv::Point(position_x, screen_height), white_color, -1);
-
+			rectangle(img, Point(0, 0), Point(position_x, screen_height), white_color);
+/*	
 			// Text and data box for "Node 1 Range"
 			rectangle(img, Point(1700, 150), Point(1700 + rec_width, 150 + rec_height), white_color, -1);
 			putText(img, "Node 1 Range", Point(1700, 140), font, 0.9, white_color, 4, cv::LINE_AA);
 
 			// Text and data box for "Node 1 Angle"
 			rectangle(img, Point(1700, 425), Point(1700 + rec_width, 425 + rec_height), white_color, -1);
-			putText(img, "Node 1 Angle", cv::Point(1700, 415), font, 0.9, white_color, 4, cv::LINE_AA);
+			putText(img, "Node 1 Angle", Point(1700, 415), font, 0.9, white_color, 4, cv::LINE_AA);
 
 			// Text and data box for "Node 2 Range"
 			rectangle(img, Point(1700, 675), Point(1700 + rec_width, 675 + rec_height), white_color, -1);
-			putText(img, "Node 2 Range", cv::Point(1700, 665), font, 0.9, white_color, 4, cv::LINE_AA);
+			putText(img, "Node 2 Range", Point(1700, 665), font, 0.9, white_color, 4, cv::LINE_AA);
 
 			// Text and data box for "Node 2 Angle"
 			rectangle(img, Point(1700, 950), Point(1700 + rec_width, 950 + rec_height), white_color, -1);
@@ -168,6 +161,7 @@ class Visualizer {
 
 			// Wait indefinitely until a key is pressed
 			waitKey(0);
+			*/
 		}
 
 };
@@ -176,5 +170,6 @@ int main() {
 	// create window
 	Visualizer window;
 	window.UIscreen();
+	// printf("test\n");
 	return 0;
 }
