@@ -45,7 +45,6 @@ def base_ui():
 	img = np.zeros((screen_height, screen_width, 3), dtype=np.uint8)
 
 	position_x = 950  				# x-coordinate of the line
-	box_width = 2  					# width of the line
 
 	# draw rectangle to separate screen
 	img = cv.rectangle(img, (0, 0), (position_x, screen_width), white_color, -1)				# main display
