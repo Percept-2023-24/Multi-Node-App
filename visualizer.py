@@ -325,7 +325,7 @@ if __name__ == "__main__":
 	cv.waitKey(500)
 
 	num_frames = 10
-	frame = 1	
+	frame = 1
 	while (frame <= num_frames):
 		fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
 		fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
