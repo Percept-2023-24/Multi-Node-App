@@ -233,19 +233,23 @@ def find_circle_intersections(circle1, circle2):
 		# Circles do not intersect or touch
 		return None, None
 	
-def triangulate(ui_img, circle1, circle2):
+def triangulate(ui_img, circle1, circle2, obj1, obj2):
 	# Find intersection points
 	intersect1, intersect2 = find_circle_intersections(circle1, circle2)
 
 	# check distance between actual points and each intersection point 
 	# to determine final object location here
 
-	# Draw point if intersection is found
-	if intersect1 is not None:
-		ui_img = cv.circle(ui_img, intersect1, 10, (255, 255, 0), -1)
-	if intersect2 is not None:
-		ui_img = cv.circle(ui_img, intersect2, 10, (255, 255, 0), -1)
+	if (intersect1 != None and intersect2 != None):
+		...
 
+
+
+
+	if (intersect1 != None and intersect2 == None):
+		ui_img = cv.circle(ui_img, intersect1, 10, (255, 255, 0), -1)
+	elif (intersect1 == None and intersect2 != None):
+		ui_img = cv.circle(ui_img, intersect2, 10, (255, 255, 0), -1)
 	
 	return ui_img
 
@@ -277,33 +281,38 @@ def update_ui(fname_mw, fname_p, ui_img):
 	node2Circle = (center_p[0], center_p[1], radius_p)
 
 	# Determine object location reported by each node
-	if(angle_mw < 0):
+	if(angle_mw <= 0):
 		theta_mw = (angle_mw+90)*np.pi/180
+		x_mw = round(radius_mw*np.sin(theta_mw))
+		y_mw = round(radius_mw*np.cos(theta_mw))
+		obj_mw = (center_mw[0]+x_mw, center_mw[1]-y_mw)	# Node 1 object location
 	else:
 		theta_mw = (90-angle_mw)*np.pi/180
+		x_mw = round(radius_mw*np.sin(theta_mw))
+		y_mw = round(radius_mw*np.cos(theta_mw))
+		obj_mw = (center_mw[0]+x_mw, center_mw[1]+y_mw) # Node 1 object location
 	
-	if(angle_p < 0):
+	if(angle_p <= 0):
 		theta_p = (angle_p+90)*np.pi/180
+		x_p = round(radius_p*np.cos(theta_p))
+		y_p = round(radius_p*np.sin(theta_p))
+		obj_p = (center_p[0]-x_p, center_p[1]-y_p) # Node 2 object location
+
 	else:
 		theta_p = (90-angle_p)*np.pi/180
-
-	# Node 1 object location
-	x_mw = round(radius_mw*np.cos(theta_mw))
-	y_mw = round(radius_mw*np.sin(theta_mw))
-
-	# Node 2 object location
-	x_p = round(radius_p*np.cos(theta_p))
-	y_p = round(radius_p*np.sin(theta_p))
+		x_p = round(radius_p*np.cos(theta_p))
+		y_p = round(radius_p*np.sin(theta_p))
+		obj_p = (center_p[0]+x_p, center_p[1]-y_p) # Node 2 object location
+	
 
 	# Draw object locations (for now, can remove later)
-	ui_img = cv.circle(ui_img, (x_mw, y_mw), 5, (0, 255, 0), -1)
-	ui_img = cv.circle(ui_img, (x_p, y_p), 5, (0, 255, 0), -1)
+	ui_img = cv.circle(ui_img, obj_mw, 5, (0, 255, 0), -1)
+	ui_img = cv.circle(ui_img, obj_p, 5, (0, 255, 0), -1)
 
 	ui_img = cv.ellipse(ui_img, center_mw, (radius_mw, radius_mw), 0, -90, 90, yellow_color, 1, cv.LINE_AA)		# Node 1
 	ui_img = cv.ellipse(ui_img, center_p, (radius_p, radius_p), 0, 180, 360, yellow_color, 1, cv.LINE_AA)		# Node 2
 
-
-	ui_img = triangulate(ui_img, node1Circle, node2Circle)
+	#ui_img = triangulate(ui_img, node1Circle, node2Circle)
 	
 	return ui_img
 	
@@ -316,9 +325,10 @@ if __name__ == "__main__":
 	cv.imshow(winname, base_img)
 	cv.moveWindow(winname, 1, 0)
 	cv.waitKey(500)
+	#import pdb;pdb.set_trace()
 
 	num_frames = 10
-	frame = 1
+	frame = 10
 	while (frame <= num_frames):
 		fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
 		fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
