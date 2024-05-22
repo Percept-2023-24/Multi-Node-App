@@ -1,28 +1,8 @@
 import cv2 as cv
 import numpy as np
-#import tkinter as tk
 import json
 
-# def opening_screen():
-#     # create main window
-#     root = tk.Tk()
-#     root.title("Multi-Node UI")
-
-#     # Create a label for the title
-#     title_label = tk.Label(root, text="Percept: Multi-Node Interface", font=("Helvetica", 24))
-#     title_label.pack(pady=20)
-
-#     # Create a button to start the game
-#     start_button = tk.Button(root, text="Run", command=visualizer)
-#     start_button.pack()
-
-#     # Create button to exit program
-#     end_button = tk.Button(root, text="Exit", command=root.destroy)
-#     end_button.pack()
-
-#     # Run the GUI
-#     root.mainloop()
-
+'''Important parameters for drawing UI'''
 font = cv.FONT_HERSHEY_SIMPLEX
 font_size = 1.1
 font_thickness = 2
@@ -38,7 +18,7 @@ cyan_color = 255, 255, 0		# cyan
 purple_color = 200, 120, 232	# bright purple
 gold_color = 48, 180, 238		# gold
 
-# parameters of rectangle for data box
+# For drawing data boxes
 rec_width = 163
 rec_height = 80
 
@@ -46,12 +26,13 @@ rec_height = 80
 center_mw = (110, 420)
 center_p = (480, 790)
 
-axis_length = 740 				# pixels
-max_range = 9					# meters
+# For main node-object display
+axis_length = 740 				# axis length in pixels
+max_range = 9					# axis length in meters (change this based on test setup)
 
+# Size of visualizer window
 screen_width = 1450
 screen_height = 900
-position_x = 950  				# x-coordinate of the line
 
 # Scale tick mark parameters
 num_ticks = 11
@@ -168,17 +149,16 @@ def draw_text(ui_img):
 	return ui_img
 
 def base_ui():
-	
-	img = np.zeros((screen_height, screen_width, 3), dtype=np.uint8)							# main window
+	img = np.zeros((screen_height, screen_width, 3), dtype=np.uint8)				# main window
 
-	# draw rectangle to separate screen
-	img = cv.rectangle(img, (0, 0), (position_x, screen_width), white_color, -1)				# main visualizer
-	img = cv.rectangle(img, (position_x, 0), (position_x+10, screen_height), gray_color, -1)	# vertical border
-	img = cv.rectangle(img, (position_x+10, 295), (screen_width, 305), gray_color, -1)			# horizontal border
-	img = cv.rectangle(img, (position_x+10, 595), (screen_width, 605), gray_color, -1)			# horizontal border
-	img = cv.rectangle(img, (position_x+10, 0), (screen_width, 295), red_color, -1)				# top info screen
-	img = cv.rectangle(img, (position_x+10, 305), (screen_width, 595), blue_color, -1)			# middle info screen
-	img = cv.rectangle(img, (position_x+10, 605), (screen_width, 900), green_color, -1)			# bottom info screen
+	# Draw rectangle to separate screen
+	img = cv.rectangle(img, (0, 0), (950, screen_width), white_color, -1)			# main visualizer
+	img = cv.rectangle(img, (950, 0), (960, screen_height), gray_color, -1)			# vertical border
+	img = cv.rectangle(img, (960, 295), (screen_width, 305), gray_color, -1)		# horizontal border
+	img = cv.rectangle(img, (960, 595), (screen_width, 605), gray_color, -1)		# horizontal border
+	img = cv.rectangle(img, (960, 0), (screen_width, 295), red_color, -1)			# top info screen
+	img = cv.rectangle(img, (960, 305), (screen_width, 595), blue_color, -1)		# middle info screen
+	img = cv.rectangle(img, (960, 605), (screen_width, 900), green_color, -1)		# bottom info screen
 
 	img = draw_text(img)	# Draw main text fields
 	img = draw_vis(img)		# Draw main visualizer (axis + nodes)
@@ -201,7 +181,7 @@ def clear_text(ui_img):
 	return ui_img
 
 def clear_vis(ui_img):
-	ui_img = cv.rectangle(ui_img, (0, 0), (position_x, screen_width), white_color, -1)	# main visualizer
+	ui_img = cv.rectangle(ui_img, (0, 0), (950, screen_width), white_color, -1)	# main visualizer
 	ui_img = draw_vis(ui_img)
 	return ui_img
 
@@ -285,7 +265,7 @@ def update_ui(fname_mw, fname_p, ui_img):
 	ui_img = clear_text(ui_img)
 	ui_img = clear_vis(ui_img)
 
-	# Add text for new frame data
+	# Place text for new frame data
 	ui_img = cv.putText(ui_img, str(runtime), (1200, 172), font, 1.4, black_color, font_thickness, cv.LINE_AA)
 	ui_img = cv.putText(ui_img, str(angle_mw), (1255, 492), font, 1.4, black_color, font_thickness, cv.LINE_AA)
 	ui_img = cv.putText(ui_img, str(angle_p), (1255, 792), font, 1.4, black_color, font_thickness, cv.LINE_AA)
@@ -343,10 +323,9 @@ if __name__ == "__main__":
 	cv.imshow(winname, base_img)
 	cv.moveWindow(winname, 1, 0)
 	cv.waitKey(500)
-	#import pdb;pdb.set_trace()
 
 	num_frames = 10
-	frame = 10
+	frame = 1	
 	while (frame <= num_frames):
 		fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
 		fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
