@@ -1,17 +1,20 @@
-import numpy as np
 import cv2 as cv
+import numpy as np
 
- 
+screen_width = 1450
+screen_height = 900
+img = np.zeros((screen_height, screen_width, 3), dtype=np.uint8)
+radius=100
+axes = (radius,radius)
+angle=0;
+startAngle=180;
+endAngle=360;
+center=(500,500)
+color=255, 255, 255
 
-# Create a black image
-img = np.zeros((512,512,3), np.uint8)
- 
-# Draw a diagonal blue line with thickness of 5 px
-cv.line(img,(0,0),(511,511),(255,0,0),5)
-cv.rectangle(img,(384,0),(510,128),(0,255,0),3)
-
-font = cv.FONT_HERSHEY_SIMPLEX
-cv.putText(img,'OpenCV',(10,500), font, 4,(255,255,255),2,cv.LINE_AA)
-
+img = cv.ellipse(img, center, axes, angle, startAngle, endAngle, color, 5, cv.LINE_AA)
 cv.imshow("Display window", img)
 cv.waitKey(0)
+
+# cv.ellipse(ui_img, center_mw, axes, -90, 90, yellow_color, 4, cv.LINE_AA)
+# cv.ellipse(ui_img, center_mw, axes, 180, 360, yellow_color, 4, cv.LINE_AA)
