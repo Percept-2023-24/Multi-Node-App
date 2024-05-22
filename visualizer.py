@@ -27,13 +27,16 @@ font = cv.FONT_HERSHEY_SIMPLEX
 font_size = 1.1
 font_thickness = 2
 
-white_color = 255, 255, 255  	# white color
-black_color = 0, 0, 0			# black color
-gray_color = 211, 211, 211		# gray color
-red_color = 20, 70, 220			# red color
-blue_color = 220, 100, 50		# blue color
-green_color = 100, 190, 0		# green color
-yellow_color = 0, 100, 100		# yellow color
+white_color = 255, 255, 255  	# white
+black_color = 0, 0, 0			# black
+gray_color = 211, 211, 211		# gray
+red_color = 20, 70, 220			# red
+blue_color = 220, 100, 50		# blue
+green_color = 100, 190, 0		# green
+brown_color = 50, 56, 75		# brown
+cyan_color = 255, 255, 0		# cyan
+purple_color = 200, 120, 232	# bright purple
+gold_color = 48, 180, 238		# gold
 
 # parameters of rectangle for data box
 rec_width = 163
@@ -202,8 +205,6 @@ def clear_vis(ui_img):
 	ui_img = draw_vis(ui_img)
 	return ui_img
 
-# Triangulation Calculation
-# Function to find intersection points of two circles
 def find_circle_intersections(circle1, circle2):
 	# Unpack circle parameters
 	(x1, y1, r1) = circle1
@@ -241,15 +242,32 @@ def triangulate(ui_img, circle1, circle2, obj1, obj2):
 	# to determine final object location here
 
 	if (intersect1 != None and intersect2 != None):
-		...
+		d_mw_1 = np.sqrt((obj1[0] - intersect1[0])**2 + (obj1[1] - intersect1[1])**2)
+		d_mw_2 = np.sqrt((obj1[0] - intersect2[0])**2 + (obj1[1] - intersect2[1])**2)
+		d_p_1 = np.sqrt((obj2[0] - intersect1[0])**2 + (obj2[1] - intersect1[1])**2)
+		d_p_2 = np.sqrt((obj2[0] - intersect2[0])**2 + (obj2[1] - intersect2[1])**2)
 
+		if (d_mw_1 < d_mw_2):
+			mw_which_intersect = intersect1
+		else:
+			mw_which_intersect = intersect2
+		
+		if (d_p_1 < d_p_2):
+			p_which_intersect = intersect1
+		else:
+			p_which_intersect = intersect2
 
+		if (p_which_intersect == mw_which_intersect):
+			ui_img = cv.circle(ui_img, p_which_intersect, 13, purple_color, -1)
+		else:
+			ui_img = cv.circle(ui_img, intersect1, 13, (255, 255, 0), -1)
+			ui_img = cv.circle(ui_img, intersect2, 13, (255, 255, 0), -1)
 
-
-	if (intersect1 != None and intersect2 == None):
-		ui_img = cv.circle(ui_img, intersect1, 10, (255, 255, 0), -1)
+	elif (intersect1 != None and intersect2 == None):
+		ui_img = cv.circle(ui_img, intersect1, 13, (255, 255, 0), -1)
+		
 	elif (intersect1 == None and intersect2 != None):
-		ui_img = cv.circle(ui_img, intersect2, 10, (255, 255, 0), -1)
+		ui_img = cv.circle(ui_img, intersect2, 13, (255, 255, 0), -1)
 	
 	return ui_img
 
@@ -274,7 +292,7 @@ def update_ui(fname_mw, fname_p, ui_img):
 	ui_img = cv.putText(ui_img, str(range_mw), (1060, 492), font, 1.4, black_color, font_thickness, cv.LINE_AA)
 	ui_img = cv.putText(ui_img, str(range_p), (1060, 792), font, 1.4, black_color, font_thickness, cv.LINE_AA)
 
-	# Must extract dimensions from node range circles
+	# For semicircles (node FOV based on range)
 	radius_mw = round(0.5*range_mw*axis_length/max_range)
 	radius_p = round(0.5*range_p*axis_length/max_range)
 	node1Circle = (center_mw[0], center_mw[1], radius_mw)
@@ -297,22 +315,22 @@ def update_ui(fname_mw, fname_p, ui_img):
 		x_p = round(radius_p*np.cos(theta_p))
 		y_p = round(radius_p*np.sin(theta_p))
 		obj_p = (center_p[0]-x_p, center_p[1]-y_p) # Node 2 object location
-
 	else:
 		theta_p = (90-angle_p)*np.pi/180
 		x_p = round(radius_p*np.cos(theta_p))
 		y_p = round(radius_p*np.sin(theta_p))
 		obj_p = (center_p[0]+x_p, center_p[1]-y_p) # Node 2 object location
-	
 
-	# Draw object locations (for now, can remove later)
-	ui_img = cv.circle(ui_img, obj_mw, 5, (0, 255, 0), -1)
-	ui_img = cv.circle(ui_img, obj_p, 5, (0, 255, 0), -1)
+	# Draw node semicircles
+	ui_img = cv.ellipse(ui_img, center_mw, (radius_mw, radius_mw), 0, -90, 90, brown_color, 1, cv.LINE_AA)		# Node 1
+	ui_img = cv.ellipse(ui_img, center_p, (radius_p, radius_p), 0, 180, 360, brown_color, 1, cv.LINE_AA)		# Node 2
 
-	ui_img = cv.ellipse(ui_img, center_mw, (radius_mw, radius_mw), 0, -90, 90, yellow_color, 1, cv.LINE_AA)		# Node 1
-	ui_img = cv.ellipse(ui_img, center_p, (radius_p, radius_p), 0, 180, 360, yellow_color, 1, cv.LINE_AA)		# Node 2
+	# Draw object locations (can remove later)
+	ui_img = cv.circle(ui_img, obj_mw, 6, gold_color, -1)
+	ui_img = cv.circle(ui_img, obj_p, 6, gold_color, -1)
 
-	#ui_img = triangulate(ui_img, node1Circle, node2Circle)
+	# Triangulate object location
+	ui_img = triangulate(ui_img, node1Circle, node2Circle, obj_mw, obj_p)
 	
 	return ui_img
 	
