@@ -313,27 +313,41 @@ def update_ui(fname_mw, fname_p, ui_img):
 	ui_img = triangulate(ui_img, node1Circle, node2Circle, obj_mw, obj_p)
 	
 	return ui_img
-	
 
-if __name__ == "__main__":
+def vis_loop():
 	win_path = '/mnt/c/Users/adity/Programming/Capstone/Multi-Node-App/frame_data/'
 	linux_path = '/home/aditya/Programming/Capstone/Multi-Node-App/frame_data/'
 	winname = "Multi-Node Visualizer"
 	base_img = base_ui()
 	cv.imshow(winname, base_img)
 	cv.moveWindow(winname, 1, 0)
-	cv.waitKey(500)
 
-	num_frames = 10
-	frame = 1
-	while (frame <= num_frames):
-		fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
-		fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
-		new_img = update_ui(fname_mw, fname_p, base_img)
-		new_img = cv.putText(new_img, str(frame), (1035, 172), font, 1.4, black_color, font_thickness, cv.LINE_AA)
-		cv.imshow(winname, new_img)
-		cv.moveWindow(winname, 1, 0)
-		cv.waitKey(350)
-		frame+=1
-	cv.waitKey()
+	i = 1
+	while (i<1000):
+		cv.imshow(winname, base_img)
+		i+=1
+	
+
+if __name__ == "__main__":
+	vis_loop()
+	# win_path = '/mnt/c/Users/adity/Programming/Capstone/Multi-Node-App/frame_data/'
+	# linux_path = '/home/aditya/Programming/Capstone/Multi-Node-App/frame_data/'
+	# winname = "Multi-Node Visualizer"
+	# base_img = base_ui()
+	# cv.imshow(winname, base_img)
+	# cv.moveWindow(winname, 1, 0)
+	# cv.waitKey(500)
+
+	# num_frames = 10
+	# frame = 1
+	# while (frame <= num_frames):
+	# 	fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
+	# 	fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
+	# 	new_img = update_ui(fname_mw, fname_p, base_img)
+	# 	new_img = cv.putText(new_img, str(frame), (1035, 172), font, 1.4, black_color, font_thickness, cv.LINE_AA)
+	# 	cv.imshow(winname, new_img)
+	# 	cv.moveWindow(winname, 1, 0)
+	# 	cv.waitKey(350)
+	# 	frame+=1
+	# cv.waitKey()
 
