@@ -257,9 +257,9 @@ def update_ui(frame, fname_mw, fname_p, ui_img):
 	data_p = json.load(open(fname_p))
 
 	angle_mw = data_mw['Angle']
-	range_mw = data_mw['Range']
+	range_mw = round(data_mw['Range'])
 	angle_p = data_p['Angle']
-	range_p = data_p['Range']
+	range_p = round(data_p['Range'])
 	runtime = data_p['Elapsed Time (ms)']
 
 	# Clear UI before adding new text/shapes
@@ -329,10 +329,13 @@ def vis_loop():
 
 	while (True):
 		if(os.path.isfile(fname_mw) and os.path.isfile(fname_p)):
-			curr_img = update_ui(frame, fname_mw, fname_p, curr_img)
-			frame+=1
-			fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
-			fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
+			f_mw_size = os.stat(fname_mw).st_size
+			f_p_size = os.stat(fname_p).st_size
+			if(f_mw_size != 0 and f_p_size != 0):
+				curr_img = update_ui(frame, fname_mw, fname_p, curr_img)
+				frame+=1
+				fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
+				fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
 		
 		cv.imshow(winname, curr_img)
 		# cv.moveWindow(winname, 1, 0)
