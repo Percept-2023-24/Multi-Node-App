@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 import json
+import os
 
 '''Important parameters for drawing UI'''
 font = cv.FONT_HERSHEY_SIMPLEX
@@ -240,18 +241,18 @@ def triangulate(ui_img, circle1, circle2, obj1, obj2):
 		if (p_which_intersect == mw_which_intersect):
 			ui_img = cv.circle(ui_img, p_which_intersect, 13, purple_color, -1)
 		else:
-			ui_img = cv.circle(ui_img, intersect1, 13, (255, 255, 0), -1)
-			ui_img = cv.circle(ui_img, intersect2, 13, (255, 255, 0), -1)
+			ui_img = cv.circle(ui_img, intersect1, 13, purple_color, -1)
+			ui_img = cv.circle(ui_img, intersect2, 13, purple_color, -1)
 
 	elif (intersect1 != None and intersect2 == None):
-		ui_img = cv.circle(ui_img, intersect1, 13, (255, 255, 0), -1)
+		ui_img = cv.circle(ui_img, intersect1, 13, purple_color, -1)
 		
 	elif (intersect1 == None and intersect2 != None):
-		ui_img = cv.circle(ui_img, intersect2, 13, (255, 255, 0), -1)
+		ui_img = cv.circle(ui_img, intersect2, 13, purple_color, -1)
 	
 	return ui_img
 
-def update_ui(fname_mw, fname_p, ui_img):
+def update_ui(frame, fname_mw, fname_p, ui_img):
 	data_mw = json.load(open(fname_mw))
 	data_p = json.load(open(fname_p))
 
@@ -266,6 +267,7 @@ def update_ui(fname_mw, fname_p, ui_img):
 	ui_img = clear_vis(ui_img)
 
 	# Place text for new frame data
+	ui_img = cv.putText(ui_img, str(frame), (1035, 172), font, 1.4, black_color, font_thickness, cv.LINE_AA)
 	ui_img = cv.putText(ui_img, str(runtime), (1200, 172), font, 1.4, black_color, font_thickness, cv.LINE_AA)
 	ui_img = cv.putText(ui_img, str(angle_mw), (1255, 492), font, 1.4, black_color, font_thickness, cv.LINE_AA)
 	ui_img = cv.putText(ui_img, str(angle_p), (1255, 792), font, 1.4, black_color, font_thickness, cv.LINE_AA)
@@ -317,15 +319,28 @@ def update_ui(fname_mw, fname_p, ui_img):
 def vis_loop():
 	win_path = '/mnt/c/Users/adity/Programming/Capstone/Multi-Node-App/frame_data/'
 	linux_path = '/home/aditya/Programming/Capstone/Multi-Node-App/frame_data/'
-	winname = "Multi-Node Visualizer"
-	base_img = base_ui()
-	cv.imshow(winname, base_img)
-	cv.moveWindow(winname, 1, 0)
+	frame = 1
+	num_frames = 10
+	fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
+	fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
 
-	i = 1
-	while (i<1000):
-		cv.imshow(winname, base_img)
-		i+=1
+	winname = "Multi-Node Visualizer"
+	curr_img = base_ui()
+
+	while (True):
+		if(os.path.isfile(fname_mw) and os.path.isfile(fname_p)):
+			curr_img = update_ui(frame, fname_mw, fname_p, curr_img)
+			frame+=1
+			fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
+			fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
+		
+		cv.imshow(winname, curr_img)
+		# cv.moveWindow(winname, 1, 0)
+		cv.waitKey(1)
+
+		if(frame == num_frames):
+			break
+	cv.waitKey()
 	
 
 if __name__ == "__main__":
