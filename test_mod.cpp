@@ -15,18 +15,20 @@ int main(int argc, char* argv[])
     RangeDoppler rdm("blackman");
 
     Visualizer vis(INPUT_SIZE,OUTPUT_SIZE);
-	JSON_TCP client_mw;
+	JSON_TCP client_p;
 
     // BUFFER POINTER INITIATION
     uint16_t *in_bufferptr    = daq.getBufferPointer();
     float    *in_visualizeptr = rdm.getBufferPointer();
     float    *ang_visualizeptr = rdm.getAngleBufferPointer();
     int      *angidx_visptr = rdm.getAngleIndexPointer();
+    float    *range_visualizeptr = rdm.getRangeBufferPointer();
     
     rdm.setBufferPointer(in_bufferptr);
     vis.setBufferPointer(in_visualizeptr);
     vis.setAngleBufferPointer(ang_visualizeptr);
     vis.setAngleIndexPointer(angidx_visptr);
+    vis.setRangeBufferPointer(range_visualizeptr);
 
     // FRAME POINTER INITIATION
     auto frame_daq = daq.getFramePointer();
@@ -45,27 +47,25 @@ int main(int argc, char* argv[])
     }
     vis.setWaitTime(1);
        
-	if (client_mw.socket_setup() == 1) {
-		// cout << "# Frames To Capture: ";
-		// int num_frames;
-		// cin >> num_frames;
-		
-        int num_frames = client_mw.get_frames();
+	if (client_p.socket_setup() == 1) {
+        int num_frames = client_p.get_frames();
         num_frames++;
         int frame = 1;
 		float frame_angle;
+		float frame_range;
 		
 		auto start_demo = chrono::high_resolution_clock::now();
-		//rdm.process();
+		rdm.process();
 		while(frame < num_frames) {
 			daq.process();
 			rdm.process();
 			frame_angle = *ang_visualizeptr;
+			frame_range = *range_visualizeptr;
 			vis.process();
-			client_mw.process(frame_angle, start_demo);
+			client_p.process(frame_angle, frame_range, start_demo);
 			frame++;
 		}
-		client_mw.end_stream();
+		client_p.end_stream();
 	}
     return 0;
 }

@@ -13,9 +13,9 @@
 #include <fstream> 
 #include <iostream>
 
-#define IP				"169.231.222.39" // server IP
-#define SERVER_PORT		1200 
-#define MAXLINE 		1024
+#define IP				"169.231.217.32" // server IP
+#define SERVER_PORT		1210 
+#define MAXLINE 		1024 
 
 using namespace std;
 using namespace std::chrono;
@@ -24,7 +24,7 @@ using namespace rapidjson;
 // Class for multi-node server comms
 class JSON_TCP {
     int frame = 1;
-    const char *node = "Mike";    // Patrick or Mike
+    const char *node = "Patrick";    // Patrick or Mike
     int clientSd;
     struct sockaddr_in servaddr;
 	socklen_t addr_size;
@@ -35,10 +35,10 @@ class JSON_TCP {
 	const char *path = "/home/fusionsense/repos/AVR/RadarPipeline/test/non_thread/frame_data";
 	char buffer[MAXLINE];
 	int n;
-	const char *exit_msg = "Mike Demo Complete";
+	const char *exit_msg = "Patrick Demo Complete";
     
 	public:
-		void write_json(string fname, float angle, auto duration) {
+		void write_json(string fname, float angle, float range, auto duration) {
 		    Document d; 
 		    d.SetObject();
 		    s.SetString(StringRef(node));
@@ -47,8 +47,8 @@ class JSON_TCP {
 		    d.AddMember("Node", s, d.GetAllocator());
 		    d.AddMember("Frame Number", frame, d.GetAllocator());
 		    d.AddMember("Elapsed Time (ms)", duration.count(), d.GetAllocator());
-		    d.AddMember("Angle", angle, d.GetAllocator()); 
-		    //d.AddMember("range", range, d.GetAllocator());
+		    d.AddMember("Angle", angle, d.GetAllocator());
+		    d.AddMember("Range", range, d.GetAllocator());
 
 		    // Open the output file
 		    fp = fopen(fname.c_str(), "w");
@@ -62,9 +62,9 @@ class JSON_TCP {
 		    fclose(fp);
 		}
 
-		void send_file_data(string fname, float angle, auto duration) {
-			write_json(fname, angle, duration);    	// Write JSON file with angle data
-		    fp_in = fopen(fname.c_str(), "r");		// Read JSON file with angle data
+		void send_file_data(string fname, float angle, float range, auto duration) {
+			write_json(fname, angle, range, duration);    	// Write JSON file with angle data
+		    fp_in = fopen(fname.c_str(), "r");				// Read JSON file with angle data
 
 		    // Read the text file
 		    if (fp_in == NULL) {
@@ -123,12 +123,12 @@ class JSON_TCP {
 			return stoi(buffer);
 		}
 
-		void process(float angle, auto start_time) {
+		void process(float angle, float range, auto start_time) {
 		    auto stop = chrono::high_resolution_clock::now();
 		    auto duration_udp_process = duration_cast<milliseconds>(stop - start_time);		    
 		    
 			fname = format("%s/%s_Frame%d.json", path, node, frame);
-		    send_file_data(fname, angle, duration_udp_process); // Send file to server
+		    send_file_data(fname, angle, range, duration_udp_process); // Send file to server
 		    printf("\nFrame Data Sent To Server\n\n");
 		    
 		    frame++;
@@ -143,4 +143,3 @@ class JSON_TCP {
 			printf("Connection Closed...\n\n");
 		}
 };
-
