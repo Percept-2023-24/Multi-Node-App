@@ -33,7 +33,7 @@ center_p = (480, 790)
 axis_length = 740 				# axis length in pixels
 max_range = 4					# axis length in meters (change this based on test setup)
 
-# Size of visualizer window
+# Size of UI window
 screen_width = 1450
 screen_height = 900
 
@@ -41,10 +41,9 @@ screen_height = 900
 num_ticks = 11
 tick_length = 10
 
-# Weighted average parameters
+# Parameters for frames with range = 0.0
 nz_range_mw = 0.0
 nz_range_p = 0.0
-
 zero_count_mw = 0
 zero_count_p = 0
 
@@ -403,13 +402,15 @@ def vis_loop(runtype, num_frames):
 
 	
 if __name__ == "__main__":
-	# add args to encode runtype (live/replay) and total frames
-	parser = argparse.ArgumentParser(description='Script so useful.')
+	# Create runtime arguments
+	parser = argparse.ArgumentParser()
 	parser.add_argument("--runtype", type=str, default="live")		# 'live' or 'replay'
 	parser.add_argument("--frames", type=int)
 
+	# Capture user arguments
 	args = parser.parse_args()
 	runtype = args.runtype
 	total_frames = args.frames
 
+	# Run visualizer with user arguments
 	vis_loop(runtype, total_frames)
