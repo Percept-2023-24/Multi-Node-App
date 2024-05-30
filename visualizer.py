@@ -1,7 +1,9 @@
 import cv2 as cv
 import numpy as np
 import json
+from json.decoder import JSONDecodeError
 import os
+import argparse
 
 '''Important parameters for drawing UI'''
 font = cv.FONT_HERSHEY_SIMPLEX
@@ -29,7 +31,7 @@ center_p = (480, 790)
 
 # For main node-object display
 axis_length = 740 				# axis length in pixels
-max_range = 9					# axis length in meters (change this based on test setup)
+max_range = 4					# axis length in meters (change this based on test setup)
 
 # Size of visualizer window
 screen_width = 1450
@@ -38,6 +40,13 @@ screen_height = 900
 # Scale tick mark parameters
 num_ticks = 11
 tick_length = 10
+
+# Weighted average parameters
+nz_range_mw = 0.0
+nz_range_p = 0.0
+
+zero_count_mw = 0
+zero_count_p = 0
 
 def draw_vis(ui_img):
 	# Node 1 box
@@ -205,11 +214,18 @@ def find_circle_intersections(circle1, circle2):
 	elif d < r1 + r2:
 		# Circles intersect, find intersection points
 		a = (r1 ** 2 - r2 ** 2 + d ** 2) / (2 * d)
-		h = np.sqrt(r1 ** 2 - a ** 2)
+		# print(r1)
+		# print(a)
+		h = np.sqrt(np.absolute(r1 ** 2 - a ** 2))
 		x0 = x1 + a * (x2 - x1) / d
 		y0 = y1 + a * (y2 - y1) / d
 		intersection1 = (int(x0 + h * (y2 - y1) / d), int(y0 - h * (x2 - x1) / d))
 		intersection2 = (int(x0 - h * (y2 - y1) / d), int(y0 + h * (x2 - x1) / d))
+		if (intersection1[0] > 850 or intersection1[0] < 110 or intersection1[1] > 790 or intersection1[1] < 50):
+			intersection1 = None
+		if (intersection2[0] > 850 or intersection2[0] < 110 or intersection2[1] > 790 or intersection2[1] < 50):
+			intersection2 = None
+
 		return intersection1, intersection2
 	else:
 		# Circles do not intersect or touch
@@ -253,14 +269,38 @@ def triangulate(ui_img, circle1, circle2, obj1, obj2):
 	return ui_img
 
 def update_ui(frame, fname_mw, fname_p, ui_img):
-	data_mw = json.load(open(fname_mw))
-	data_p = json.load(open(fname_p))
+	global nz_range_mw
+	global nz_range_p
+	global zero_count_mw
+	global zero_count_p
 
-	angle_mw = data_mw['Angle']
-	range_mw = round(data_mw['Range'])
-	angle_p = data_p['Angle']
-	range_p = round(data_p['Range'])
-	runtime = data_p['Elapsed Time (ms)']
+	try:
+		data_mw = json.load(open(fname_mw, 'r'))
+		angle_mw = data_mw['Angle']
+		range_mw = round(data_mw['Range'], 1)
+	except JSONDecodeError as e:
+		return -1
+	
+	if (range_mw == 0.0):
+		range_mw = nz_range_mw
+		zero_count_mw+=1
+	elif (range_mw > 0.0):
+		nz_range_mw = range_mw
+		
+	
+	try:
+		data_p = json.load(open(fname_p, 'r'))
+		angle_p = data_p['Angle']
+		range_p = round(data_p['Range'], 1)
+		runtime = data_p['Elapsed Time (ms)']
+	except JSONDecodeError as e:
+		return -1
+	
+	if (range_p == 0.0):
+		range_p = nz_range_p
+		zero_count_p+=1
+	elif (range_p > 0.0):
+		nz_range_p = range_p
 
 	# Clear UI before adding new text/shapes
 	ui_img = clear_text(ui_img)
@@ -275,8 +315,8 @@ def update_ui(frame, fname_mw, fname_p, ui_img):
 	ui_img = cv.putText(ui_img, str(range_p), (1060, 792), font, 1.4, black_color, font_thickness, cv.LINE_AA)
 
 	# For semicircles (node FOV based on range)
-	radius_mw = round(0.5*range_mw*axis_length/max_range)
-	radius_p = round(0.5*range_p*axis_length/max_range)
+	radius_mw = round(range_mw*axis_length/max_range)+0.2
+	radius_p = round(range_p*axis_length/max_range)+0.2
 	node1Circle = (center_mw[0], center_mw[1], radius_mw)
 	node2Circle = (center_p[0], center_p[1], radius_p)
 
@@ -304,68 +344,72 @@ def update_ui(frame, fname_mw, fname_p, ui_img):
 		obj_p = (center_p[0]+x_p, center_p[1]-y_p) # Node 2 object location
 
 	# Draw node semicircles
-	ui_img = cv.ellipse(ui_img, center_mw, (radius_mw, radius_mw), 0, -90, 90, brown_color, 1, cv.LINE_AA)		# Node 1
-	ui_img = cv.ellipse(ui_img, center_p, (radius_p, radius_p), 0, 180, 360, brown_color, 1, cv.LINE_AA)		# Node 2
+	# ui_img = cv.ellipse(ui_img, center_mw, (radius_mw, radius_mw), 0, -90, 90, brown_color, 1, cv.LINE_AA)		# Node 1
+	# ui_img = cv.ellipse(ui_img, center_p, (radius_p, radius_p), 0, 180, 360, brown_color, 1, cv.LINE_AA)		# Node 2
 
 	# Draw object locations (can remove later)
-	ui_img = cv.circle(ui_img, obj_mw, 6, gold_color, -1)
-	ui_img = cv.circle(ui_img, obj_p, 6, gold_color, -1)
+	# ui_img = cv.circle(ui_img, obj_mw, 6, gold_color, -1)
+	# ui_img = cv.circle(ui_img, obj_p, 6, gold_color, -1)
 
 	# Triangulate object location
 	ui_img = triangulate(ui_img, node1Circle, node2Circle, obj_mw, obj_p)
 	
 	return ui_img
 
-def vis_loop():
+def vis_loop(runtype, num_frames):
+	global zero_count_mw
+	global zero_count_p
 	win_path = '/mnt/c/Users/adity/Programming/Capstone/Multi-Node-App/frame_data/'
 	linux_path = '/home/aditya/Programming/Capstone/Multi-Node-App/frame_data/'
 	frame = 1
-	num_frames = 10
 	fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
 	fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
 
 	winname = "Multi-Node Visualizer"
 	curr_img = base_ui()
 
-	while (True):
-		if(os.path.isfile(fname_mw) and os.path.isfile(fname_p)):
-			f_mw_size = os.stat(fname_mw).st_size
-			f_p_size = os.stat(fname_p).st_size
-			if(f_mw_size != 0 and f_p_size != 0):
-				curr_img = update_ui(frame, fname_mw, fname_p, curr_img)
-				frame+=1
-				fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
-				fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
-		
+	if (runtype == "live"):				# loop for live tracking
+		while (True):
+			if(os.path.isfile(fname_mw) and os.path.isfile(fname_p)):
+				new_img = update_ui(frame, fname_mw, fname_p, curr_img)
+				if(~isinstance(new_img, int)):
+					# print(frame)
+					curr_img = new_img
+					frame+=1
+					fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
+					fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
+			
+			cv.imshow(winname, curr_img)
+			# cv.moveWindow(winname, 1, 0)
+			cv.waitKey(400)
+			
+			if(frame > num_frames):
+				break
+		# print(zero_count_mw)
+		# print(zero_count_p)
+		cv.waitKey()
+
+	elif (runtype == "replay"):			# loop for replay tracking
 		cv.imshow(winname, curr_img)
-		# cv.moveWindow(winname, 1, 0)
-		cv.waitKey(1)
+		cv.waitKey(2000)
+		while (frame <= num_frames):
+			fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
+			fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
+			curr_img = update_ui(frame, fname_mw, fname_p, curr_img)
+			cv.imshow(winname, curr_img)
+			cv.waitKey(250)	# 4 fps
+			frame+=1
+		cv.waitKey()
 
-		if(frame == num_frames):
-			break
-	cv.waitKey()
 	
-
 if __name__ == "__main__":
-	vis_loop()
-	# win_path = '/mnt/c/Users/adity/Programming/Capstone/Multi-Node-App/frame_data/'
-	# linux_path = '/home/aditya/Programming/Capstone/Multi-Node-App/frame_data/'
-	# winname = "Multi-Node Visualizer"
-	# base_img = base_ui()
-	# cv.imshow(winname, base_img)
-	# cv.moveWindow(winname, 1, 0)
-	# cv.waitKey(500)
+	# add args to encode runtype (live/replay) and total frames
+	parser = argparse.ArgumentParser(description='Script so useful.')
+	parser.add_argument("--runtype", type=str, default="live")		# 'live' or 'replay'
+	parser.add_argument("--frames", type=int)
 
-	# num_frames = 10
-	# frame = 1
-	# while (frame <= num_frames):
-	# 	fname_mw = linux_path + 'Mike_Frame{}.json'.format(frame)
-	# 	fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
-	# 	new_img = update_ui(fname_mw, fname_p, base_img)
-	# 	new_img = cv.putText(new_img, str(frame), (1035, 172), font, 1.4, black_color, font_thickness, cv.LINE_AA)
-	# 	cv.imshow(winname, new_img)
-	# 	cv.moveWindow(winname, 1, 0)
-	# 	cv.waitKey(350)
-	# 	frame+=1
-	# cv.waitKey()
+	args = parser.parse_args()
+	runtype = args.runtype
+	total_frames = args.frames
 
+	vis_loop(runtype, total_frames)

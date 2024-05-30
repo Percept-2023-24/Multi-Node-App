@@ -12,7 +12,7 @@
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 //#define IP			"127.0.0.1"				// localhost
-#define IP				"169.231.217.32" 		// server
+#define IP				"169.231.223.121" 		// server
 #define SERVER_PORT1 	1200
 #define SERVER_PORT2 	1210
 #define MAXLINE 		1024
@@ -66,16 +66,11 @@ void write_file(int sockfd, struct sockaddr_in addr) {
 			node = "Mike";
 			fname = format("{}/{}_Frame{}.json", path, node, frame_mw);
 			frame_mw++;
-			
 		}
 		else if (buffer[9] == 'P') {
 			node = "Patrick";
 			fname = format("{}/{}_Frame{}.json", path, node, frame_p);
 			frame_p++;
-			if (strcmp(buffer, "Demo Complete") == 0) {
-				p_done = true;
-				return;
-			}
 		}
 
 		fp = fopen(fname.c_str(), "w");
@@ -90,6 +85,7 @@ void init_demo() {
 	cin >> num_frames;
 	memset(&buffer, 0, sizeof(buffer));
 	strcpy(buffer, to_string(num_frames).c_str());
+	sleep(1);
 	n = sendto(newsockfd1, buffer, MAXLINE, 0, (struct sockaddr*)&cliaddr1, sizeof(cliaddr1));
 	n = sendto(newsockfd2, buffer, MAXLINE, 0, (struct sockaddr*)&cliaddr2, sizeof(cliaddr2));
 }
