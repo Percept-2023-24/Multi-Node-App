@@ -31,7 +31,7 @@ center_p = (480, 790)
 
 # For main node-object display
 axis_length = 740 				# axis length in pixels
-max_range = 4					# axis length in meters (change this based on test setup)
+max_range = 9					# axis length in meters (change this based on test setup)
 
 # Size of UI window
 screen_width = 1450
@@ -314,8 +314,8 @@ def update_ui(frame, fname_mw, fname_p, ui_img):
 	ui_img = cv.putText(ui_img, str(range_p), (1060, 792), font, 1.4, black_color, font_thickness, cv.LINE_AA)
 
 	# For semicircles (node FOV based on range)
-	radius_mw = round(range_mw*axis_length/max_range)+0.2
-	radius_p = round(range_p*axis_length/max_range)+0.2
+	radius_mw = round(range_mw*axis_length/max_range)+0.0
+	radius_p = round(range_p*axis_length/max_range)+0.0
 	node1Circle = (center_mw[0], center_mw[1], radius_mw)
 	node2Circle = (center_p[0], center_p[1], radius_p)
 
@@ -324,23 +324,24 @@ def update_ui(frame, fname_mw, fname_p, ui_img):
 		theta_mw = (angle_mw+90)*np.pi/180
 		x_mw = round(radius_mw*np.sin(theta_mw))
 		y_mw = round(radius_mw*np.cos(theta_mw))
-		obj_mw = (center_mw[0]+x_mw, center_mw[1]-y_mw)	# Node 1 object location
+		obj_mw = (center_mw[0]+x_mw, center_mw[1]+y_mw) # Node 1 object location
 	else:
 		theta_mw = (90-angle_mw)*np.pi/180
 		x_mw = round(radius_mw*np.sin(theta_mw))
 		y_mw = round(radius_mw*np.cos(theta_mw))
-		obj_mw = (center_mw[0]+x_mw, center_mw[1]+y_mw) # Node 1 object location
+		obj_mw = (center_mw[0]+x_mw, center_mw[1]-y_mw)	# Node 1 object location
 	
 	if(angle_p <= 0):
 		theta_p = (angle_p+90)*np.pi/180
 		x_p = round(radius_p*np.cos(theta_p))
 		y_p = round(radius_p*np.sin(theta_p))
-		obj_p = (center_p[0]-x_p, center_p[1]-y_p) # Node 2 object location
+		obj_p = (center_p[0]+x_p, center_p[1]-y_p) # Node 2 object location
+
 	else:
 		theta_p = (90-angle_p)*np.pi/180
 		x_p = round(radius_p*np.cos(theta_p))
 		y_p = round(radius_p*np.sin(theta_p))
-		obj_p = (center_p[0]+x_p, center_p[1]-y_p) # Node 2 object location
+		obj_p = (center_p[0]-x_p, center_p[1]-y_p) # Node 2 object location
 
 	# Draw node semicircles
 	# ui_img = cv.ellipse(ui_img, center_mw, (radius_mw, radius_mw), 0, -90, 90, brown_color, 1, cv.LINE_AA)		# Node 1
@@ -396,8 +397,9 @@ def vis_loop(runtype, num_frames):
 			fname_p = linux_path + 'Patrick_Frame{}.json'.format(frame)
 			curr_img = update_ui(frame, fname_mw, fname_p, curr_img)
 			cv.imshow(winname, curr_img)
-			cv.waitKey(250)	# 4 fps
+			cv.waitKey(330)	# 4 fps
 			frame+=1
+		# cv.imwrite('/home/aditya/Programming/Capstone/Multi-Node-App/Multi_Node_Vis.png', curr_img)
 		cv.waitKey()
 
 	

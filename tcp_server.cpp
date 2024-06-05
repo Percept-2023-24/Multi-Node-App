@@ -12,7 +12,7 @@
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
 //#define IP			"127.0.0.1"				// localhost
-#define IP				"169.231.223.121" 		// server
+#define IP				"169.231.216.203" 		// server
 #define SERVER_PORT1 	1200
 #define SERVER_PORT2 	1210
 #define MAXLINE 		1024
